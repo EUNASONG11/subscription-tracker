@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>구독 명세서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEAE1;
+    --surface:#FBFAF6;
+    --surface-raised:#FFFFFF;
+    --ink:#232420;
+    --ink-soft:#6B6A5F;
+    --ink-faint:#A6A395;
+    --accent:#2F6F4F;
+    --accent-ink:#F4FAF6;
+    --accent-soft:#E4EEE7;
+    --danger:#B23A2E;
+    --danger-soft:#F5E3DF;
+    --line:#D8D4C8;
+    --shadow:rgba(35,36,32,.10);
+    --overlay:rgba(23,24,20,.46);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#161713;
+      --surface:#1F1F1A;
+      --surface-raised:#272620;
+      --ink:#EEEBE2;
+      --ink-soft:#9C9A8C;
+      --ink-faint:#67655A;
+      --accent:#5FAE86;
+      --accent-ink:#12231A;
+      --accent-soft:#233229;
+      --danger:#E0876F;
+      --danger-soft:#3A2620;
+      --line:#37362E;
+      --shadow:rgba(0,0,0,.35);
+      --overlay:rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#161713;
+    --surface:#1F1F1A;
+    --surface-raised:#272620;
+    --ink:#EEEBE2;
+    --ink-soft:#9C9A8C;
+    --ink-faint:#67655A;
+    --accent:#5FAE86;
+    --accent-ink:#12231A;
+    --accent-soft:#233229;
+    --danger:#E0876F;
+    --danger-soft:#3A2620;
+    --line:#37362E;
+    --shadow:rgba(0,0,0,.35);
+    --overlay:rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .num{ font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+
+  .frame{
+    max-width:430px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--surface);
+    box-shadow:0 0 60px var(--shadow);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+
+  header.top{
+    padding:28px 20px 18px;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .theme-toggle{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:.08em;
+    padding:4px 8px;
+    border-radius:20px;
+    cursor:pointer;
+  }
+  h1.title{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:600;
+    font-size:22px;
+    margin:6px 0 20px;
+    text-wrap:balance;
+  }
+  .total-block{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .total-figure{ font-size:38px; font-weight:600; letter-spacing:-0.01em; }
+  .total-unit{ font-size:15px; color:var(--ink-soft); }
+  .total-caption{ margin-top:4px; font-size:13px; color:var(--ink-soft); }
+  .total-caption b{ color:var(--ink); font-weight:600; }
+
+  .card-strip{
+    display:flex; gap:8px; overflow-x:auto;
+    padding:16px 20px 4px;
+    scrollbar-width:none;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+    cursor:grab;
+    touch-action:pan-x;
+  }
+  .card-strip.dragging{ cursor:grabbing; scroll-snap-type:none; }
+  .card-strip::-webkit-scrollbar{ display:none; }
+  .card-chip{
+    flex:0 0 auto;
+    display:flex; align-items:center; gap:6px;
+    background:var(--surface-raised);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:6px 12px 6px 8px;
+    font-size:12px;
+    white-space:nowrap;
+    scroll-snap-align:start;
+  }
+  .card-dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+  .card-chip .amt{ color:var(--ink-soft); }
+
+  .card-dots{ display:flex; gap:5px; justify-content:center; align-items:center; padding:6px 0 2px; }
+  .card-dots i{ width:5px; height:5px; border-radius:50%; background:var(--line); display:block; font-style:normal; transition:width .15s, background-color .15s; }
+  .card-dots i.active{ width:14px; border-radius:4px; background:var(--accent); }
+
+  main{ flex:1; padding:10px 20px 100px; }
+  .section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:18px 2px 8px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+
+  .view-switch{
+    display:flex; gap:6px; margin-top:16px;
+    background:var(--paper); border:1px solid var(--line);
+    border-radius:12px; padding:3px;
+  }
+  .view-btn{
+    flex:1; border:none; background:transparent; color:var(--ink-soft);
+    font-family:'Public Sans', sans-serif; font-size:13px; font-weight:600;
+    padding:8px 0; border-radius:9px; cursor:pointer;
+  }
+  .view-btn.active{ background:var(--surface-raised); color:var(--ink); box-shadow:0 1px 3px var(--shadow); }
+
+  .list{ display:flex; flex-direction:column; }
+  .row{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 2px;
+    border-bottom:1px dashed var(--line);
+    cursor:pointer;
+    background:none; border-left:none; border-right:none; border-top:none;
+    width:100%; text-align:left; font-family:inherit; color:inherit;
+  }
+  .row:last-child{ border-bottom:none; }
+  .row-dot{ width:10px; height:10px; border-radius:50%; flex:0 0 auto; margin-top:2px; align-self:flex-start; }
+  .row-body{ flex:1; min-width:0; }
+  .row-top{ display:flex; justify-content:space-between; gap:10px; align-items:baseline; }
+  .row-name{ font-size:15px; font-weight:600; }
+  .row-amount{ font-size:15px; font-weight:600; white-space:nowrap; }
+  .row-meta{ display:flex; gap:8px; align-items:center; margin-top:3px; }
+  .row-sub{ font-size:12px; color:var(--ink-soft); }
+  .dday{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; font-weight:600;
+    padding:2px 7px; border-radius:20px;
+    background:var(--accent-soft); color:var(--accent);
+    letter-spacing:.02em;
+  }
+  .dday.soon{ background:var(--danger-soft); color:var(--danger); }
+  .row-card{ font-size:11px; color:var(--ink-faint); }
+
+  .cal-header{ display:flex; align-items:center; justify-content:space-between; margin:16px 2px 10px; }
+  .cal-nav-btn{
+    width:32px; height:32px; border-radius:9px; border:1px solid var(--line);
+    background:var(--surface-raised); color:var(--ink-soft); font-size:16px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .cal-month-label{ font-family:'Fraunces', Georgia, serif; font-weight:600; font-size:16px; }
+  .cal-today-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.06em;
+    color:var(--accent); background:var(--accent-soft); border:none;
+    border-radius:20px; padding:5px 10px; cursor:pointer;
+  }
+  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+  .cal-weekdays span{
+    text-align:center; font-size:10.5px; color:var(--ink-faint);
+    font-family:'IBM Plex Mono', monospace; padding:2px 0 6px;
+  }
+  .cal-weekdays span.sun{ color:var(--danger); opacity:.75; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-cell{
+    aspect-ratio:1/1; border-radius:10px; border:1px solid transparent;
+    background:transparent; cursor:pointer; padding:5px 2px 3px;
+    display:flex; flex-direction:column; align-items:center; font-family:inherit;
+  }
+  .cal-cell.empty{ visibility:hidden; cursor:default; }
+  .cal-daynum{ font-size:11.5px; color:var(--ink); font-family:'IBM Plex Mono', monospace; }
+  .cal-cell.today .cal-daynum{
+    background:var(--accent); color:var(--accent-ink);
+    width:19px; height:19px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cal-cell.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .cal-dots{ display:flex; gap:2px; margin-top:4px; flex-wrap:wrap; justify-content:center; max-width:36px; }
+  .cal-dots i{ width:5px; height:5px; border-radius:50%; display:block; font-style:normal; }
+  .cal-more{ font-size:8px; color:var(--ink-faint); font-family:'IBM Plex Mono', monospace; }
+  .cal-detail-hint{ font-size:12.5px; color:var(--ink-faint); text-align:center; padding:20px 10px; }
+
+  .empty-cta{
+    margin-top:14px;
+    border:1px dashed var(--line);
+    border-radius:14px;
+    padding:20px 16px;
+    text-align:center;
+  }
+  .empty-cta p{ margin:0 0 12px; font-size:13px; color:var(--ink-soft); line-height:1.5; }
+  .empty-cta button{
+    background:var(--accent); color:var(--accent-ink);
+    border:none; border-radius:10px; padding:10px 18px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    font-family:'Public Sans', sans-serif;
+  }
+  .sample-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.06em;
+    color:var(--ink-faint); border:1px solid var(--line); border-radius:8px;
+    padding:1px 6px; text-transform:uppercase;
+  }
+
+  .fab{
+    position:absolute; right:20px; bottom:26px;
+    width:56px; height:56px; border-radius:50%;
+    background:var(--accent); color:var(--accent-ink);
+    border:none; box-shadow:0 8px 20px var(--shadow);
+    font-size:26px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fab:active{ transform:scale(.96); }
+
+  .sheet-overlay{
+    position:fixed; inset:0; background:var(--overlay);
+    display:flex; align-items:flex-end; justify-content:center;
+    z-index:50;
+  }
+  .sheet-overlay[hidden]{ display:none; }
+  .sheet{
+    width:100%; max-width:430px;
+    background:var(--surface-raised);
+    border-radius:20px 20px 0 0;
+    padding:18px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    max-height:88vh; overflow-y:auto;
+  }
+  .sheet-handle{ width:36px; height:4px; background:var(--line); border-radius:4px; margin:0 auto 14px; }
+  .sheet h2{ font-family:'Fraunces', Georgia, serif; font-size:19px; font-weight:600; margin:0 0 16px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:6px; }
+  .field input, .field select{
+    width:100%; padding:11px 12px; border-radius:10px;
+    border:1px solid var(--line); background:var(--surface);
+    color:var(--ink); font-size:15px; font-family:'Public Sans', sans-serif;
+  }
+  .field input:focus, .field select:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+  .color-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:2px; }
+  .color-dot{
+    width:26px; height:26px; border-radius:50%; cursor:pointer;
+    border:2px solid transparent;
+  }
+  .color-dot.selected{ border-color:var(--ink); }
+  .sheet-actions{ display:flex; gap:10px; margin-top:18px; }
+  .btn-primary{
+    flex:1; background:var(--accent); color:var(--accent-ink);
+    border:none; border-radius:10px; padding:13px; font-size:14px; font-weight:600;
+    cursor:pointer; font-family:'Public Sans', sans-serif;
+  }
+  .btn-ghost{
+    background:transparent; color:var(--ink-soft); border:1px solid var(--line);
+    border-radius:10px; padding:13px 16px; font-size:14px; cursor:pointer;
+    font-family:'Public Sans', sans-serif;
+  }
+  .btn-danger{
+    background:transparent; color:var(--danger); border:1px solid var(--danger);
+    border-radius:10px; padding:13px 16px; font-size:14px; cursor:pointer;
+    font-family:'Public Sans', sans-serif;
+  }
+  .status-line{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint);
+    text-align:center; padding:10px 0 2px;
+  }
+
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <header class="top">
+    <div class="eyebrow">
+      <span>SUBSCRIPTION STATEMENT</span>
+      <button class="theme-toggle" id="themeToggle" type="button">라이트/다크</button>
+    </div>
+    <h1 class="title">구독 명세서</h1>
+    <div class="total-block">
+      <span class="total-figure num" id="totalFigure">0</span>
+      <span class="total-unit">원 / 월평균</span>
+    </div>
+    <div class="total-caption" id="totalCaption">구독 내역을 불러오는 중...</div>
+  </header>
+
+  <div class="card-strip" id="cardStrip"></div>
+  <div class="card-dots" id="cardDots"></div>
+
+  <main>
+    <div class="view-switch" id="viewSwitch">
+      <button class="view-btn active" type="button" data-view="list">리스트</button>
+      <button class="view-btn" type="button" data-view="calendar">캘린더</button>
+    </div>
+
+    <div id="listView">
+      <div class="section-label">
+        <span>결제 예정순</span>
+        <span id="countLabel"></span>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+
+    <div id="calendarView" hidden>
+      <div class="cal-header">
+        <button class="cal-nav-btn" id="calPrev" type="button" aria-label="이전 달">‹</button>
+        <span class="cal-month-label" id="calMonthLabel"></span>
+        <button class="cal-nav-btn" id="calNext" type="button" aria-label="다음 달">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="section-label" id="calDetailLabel" style="margin-top:18px;"></div>
+      <div class="list" id="calDetailList"></div>
+    </div>
+  </main>
+
+  <button class="fab" id="fabAdd" type="button" aria-label="구독 추가">+</button>
+
+  <div class="sheet-overlay" id="sheetOverlay" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 id="sheetTitle">구독 추가</h2>
+      <form id="subForm">
+        <div class="field">
+          <label for="fName">서비스명</label>
+          <input id="fName" type="text" placeholder="예: 넷플릭스" required maxlength="40" autocomplete="off">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="fAmount">금액 (원)</label>
+            <input id="fAmount" type="number" inputmode="numeric" min="0" step="100" placeholder="17000" required>
+          </div>
+          <div class="field">
+            <label for="fCycle">결제 주기</label>
+            <select id="fCycle">
+              <option value="monthly">매월</option>
+              <option value="yearly">매년</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" id="monthField" hidden>
+            <label for="fMonth">결제 월</label>
+            <select id="fMonth"></select>
+          </div>
+          <div class="field">
+            <label for="fDay">결제일</label>
+            <select id="fDay"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="fCard">결제 카드</label>
+          <input id="fCard" type="text" list="cardList" placeholder="예: 신한카드" required maxlength="30" autocomplete="off">
+          <datalist id="cardList"></datalist>
+        </div>
+        <div class="field">
+          <label>색상 태그</label>
+          <div class="color-row" id="colorRow"></div>
+        </div>
+        <div class="sheet-actions">
+          <button type="button" class="btn-ghost" id="btnCancel">취소</button>
+          <button type="button" class="btn-danger" id="btnDelete" hidden>삭제</button>
+          <button type="submit" class="btn-primary" id="btnSave">저장</button>
+        </div>
+      </form>
+      <div class="status-line" id="statusLine"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARD_COLORS = ["#3B5BA5","#B2452F","#5A7247","#8B5A9E","#C08A2E","#3C8C8C","#A24B72","#4A5568"];
+  var MONTH_NAMES = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+
+  function colorForCard(name){
+    var h = 0;
+    for (var i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) >>> 0; }
+    return CARD_COLORS[h % CARD_COLORS.length];
+  }
+
+  function fmt(n){ return Math.round(n).toLocaleString('ko-KR'); }
+
+  function daysInMonth(year, monthIndex0){ return new Date(year, monthIndex0+1, 0).getDate(); }
+
+  function nextOccurrence(sub, from){
+    var today = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+    if (sub.cycle === 'yearly'){
+      var y = today.getFullYear();
+      var mo = (sub.billingMonth||1) - 1;
+      var d = Math.min(sub.billingDay, daysInMonth(y, mo));
+      var candidate = new Date(y, mo, d);
+      if (candidate < today){
+        y += 1;
+        d = Math.min(sub.billingDay, daysInMonth(y, mo));
+        candidate = new Date(y, mo, d);
+      }
+      return candidate;
+    }
+    var y2 = today.getFullYear(), m2 = today.getMonth();
+    var d2 = Math.min(sub.billingDay, daysInMonth(y2, m2));
+    var cand = new Date(y2, m2, d2);
+    if (cand < today){
+      m2 += 1;
+      if (m2 > 11){ m2 = 0; y2 += 1; }
+      d2 = Math.min(sub.billingDay, daysInMonth(y2, m2));
+      cand = new Date(y2, m2, d2);
+    }
+    return cand;
+  }
+
+  function monthlyAmount(sub){
+    return sub.cycle === 'yearly' ? sub.amount / 12 : sub.amount;
+  }
+
+  function ddayLabel(next, today){
+    var t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    var diff = Math.round((next - t0) / 86400000);
+    if (diff === 0) return 'D-DAY';
+    if (diff > 0) return 'D-' + diff;
+    return diff + '일 지남';
+  }
+
+  // ---- state ----
+  var subs = [];          // {id,name,amount,cycle,billingMonth,billingDay,card,color}
+  var usingSample = false;
+  var editingId = null;
+  var db = null;
+
+  var els = {
+    totalFigure: document.getElementById('totalFigure'),
+    totalCaption: document.getElementById('totalCaption'),
+    cardStrip: document.getElementById('cardStrip'),
+    cardDots: document.getElementById('cardDots'),
+    list: document.getElementById('list'),
+    countLabel: document.getElementById('countLabel'),
+    fabAdd: document.getElementById('fabAdd'),
+    sheetOverlay: document.getElementById('sheetOverlay'),
+    sheetTitle: document.getElementById('sheetTitle'),
+    subForm: document.getElementById('subForm'),
+    fName: document.getElementById('fName'),
+    fAmount: document.getElementById('fAmount'),
+    fCycle: document.getElementById('fCycle'),
+    monthField: document.getElementById('monthField'),
+    fMonth: document.getElementById('fMonth'),
+    fDay: document.getElementById('fDay'),
+    fCard: document.getElementById('fCard'),
+    cardList: document.getElementById('cardList'),
+    colorRow: document.getElementById('colorRow'),
+    btnCancel: document.getElementById('btnCancel'),
+    btnDelete: document.getElementById('btnDelete'),
+    btnSave: document.getElementById('btnSave'),
+    statusLine: document.getElementById('statusLine'),
+    themeToggle: document.getElementById('themeToggle'),
+    viewSwitch: document.getElementById('viewSwitch'),
+    listView: document.getElementById('listView'),
+    calendarView: document.getElementById('calendarView'),
+    calPrev: document.getElementById('calPrev'),
+    calNext: document.getElementById('calNext'),
+    calMonthLabel: document.getElementById('calMonthLabel'),
+    calGrid: document.getElementById('calGrid'),
+    calDetailLabel: document.getElementById('calDetailLabel'),
+    calDetailList: document.getElementById('calDetailList')
+  };
+
+  for (var m=0; m<12; m++){
+    var opt = document.createElement('option');
+    opt.value = String(m+1); opt.textContent = MONTH_NAMES[m];
+    els.fMonth.appendChild(opt);
+  }
+  for (var d=1; d<=31; d++){
+    var optd = document.createElement('option');
+    optd.value = String(d); optd.textContent = d + '일';
+    els.fDay.appendChild(optd);
+  }
+
+  var selectedColor = CARD_COLORS[0];
+  CARD_COLORS.forEach(function(c){
+    var dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'color-dot';
+    dot.style.background = c;
+    dot.addEventListener('click', function(){
+      selectedColor = c;
+      Array.prototype.forEach.call(els.colorRow.children, function(el){ el.classList.remove('selected'); });
+      dot.classList.add('selected');
+    });
+    els.colorRow.appendChild(dot);
+  });
+
+  var SAMPLE = [
+    {id:'s1', name:'넷플릭스', amount:17000, cycle:'monthly', billingDay:5, card:'국민카드'},
+    {id:'s2', name:'유튜브 프리미엄', amount:14900, cycle:'monthly', billingDay:14, card:'신한카드'},
+    {id:'s3', name:'아이클라우드+', amount:3300, cycle:'monthly', billingDay:22, card:'신한카드'},
+    {id:'s4', name:'디스코드 Nitro', amount:99000, cycle:'yearly', billingMonth:3, billingDay:1, card:'국민카드'}
+  ].map(function(s){ s.color = colorForCard(s.card); return s; });
+
+  function render(){
+    var today = new Date();
+    var list = subs.slice();
+    list.forEach(function(s){ s.__next = nextOccurrence(s, today); });
+    list.sort(function(a,b){ return a.__next - b.__next; });
+
+    var monthlyTotal = subs.reduce(function(acc,s){ return acc + monthlyAmount(s); }, 0);
+    els.totalFigure.textContent = fmt(monthlyTotal);
+
+    var thisMonthDue = subs.filter(function(s){
+      return s.__next && s.__next.getMonth() === today.getMonth() && s.__next.getFullYear() === today.getFullYear();
+    });
+    var thisMonthSum = thisMonthDue.reduce(function(acc,s){ return acc + s.amount; }, 0);
+    if (usingSample){
+      els.totalCaption.innerHTML = '<span class="sample-tag">예시</span> 아래는 예시 데이터예요. 오른쪽 아래 + 버튼으로 첫 구독을 추가해보세요.';
+    } else {
+      els.totalCaption.innerHTML = '이번 달 결제 <b>' + thisMonthDue.length + '건</b> · <b>' + fmt(thisMonthSum) + '원</b>';
+    }
+
+    els.countLabel.textContent = list.length ? list.length + '건' : '';
+
+    var byCard = {};
+    subs.forEach(function(s){
+      byCard[s.card] = byCard[s.card] || {total:0, color:s.color};
+      byCard[s.card].total += monthlyAmount(s);
+    });
+    els.cardStrip.innerHTML = '';
+    els.cardDots.innerHTML = '';
+    var cardNames = Object.keys(byCard).sort(function(a,b){ return byCard[b].total - byCard[a].total; });
+    cardNames.forEach(function(card, i){
+      var chip = document.createElement('div');
+      chip.className = 'card-chip';
+      chip.innerHTML = '<span class="card-dot" style="background:' + byCard[card].color + '"></span>' +
+        '<span>' + escapeHtml(card) + '</span>' +
+        '<span class="amt num">' + fmt(byCard[card].total) + '원</span>';
+      els.cardStrip.appendChild(chip);
+      if (cardNames.length > 1){
+        var dot = document.createElement('i');
+        if (i === 0) dot.classList.add('active');
+        els.cardDots.appendChild(dot);
+      }
+    });
+
+    els.list.innerHTML = '';
+    if (!list.length){
+      var box = document.createElement('div');
+      box.className = 'empty-cta';
+      box.innerHTML = '<p>아직 등록된 구독이 없어요.<br>넷플릭스, 유튜브, 클라우드 저장소처럼 매달 나가는 결제를 등록해보세요.</p>';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = '첫 구독 추가하기';
+      btn.addEventListener('click', openAddSheet);
+      box.appendChild(btn);
+      els.list.appendChild(box);
+    } else {
+      list.forEach(function(s){
+        els.list.appendChild(buildRow(s, today));
+      });
+    }
+
+    renderCalendar();
+  }
+
+  function buildRow(s, today, overrideNext){
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'row';
+    var next = overrideNext || s.__next || nextOccurrence(s, today);
+    var dd = ddayLabel(next, today);
+    var soon = (next - today) / 86400000 <= 3;
+    var cycleText = s.cycle === 'yearly'
+      ? MONTH_NAMES[(s.billingMonth||1)-1] + ' ' + s.billingDay + '일 · 매년'
+      : '매월 ' + s.billingDay + '일';
+    row.innerHTML =
+      '<span class="row-dot" style="background:' + s.color + '"></span>' +
+      '<span class="row-body">' +
+        '<span class="row-top">' +
+          '<span class="row-name">' + escapeHtml(s.name) + '</span>' +
+          '<span class="row-amount num">' + fmt(s.amount) + '원</span>' +
+        '</span>' +
+        '<span class="row-meta">' +
+          '<span class="dday' + (soon ? ' soon' : '') + '">' + dd + '</span>' +
+          '<span class="row-sub">' + cycleText + '</span>' +
+          '<span class="row-card">· ' + escapeHtml(s.card) + '</span>' +
+        '</span>' +
+      '</span>';
+    row.addEventListener('click', function(){ openEditSheet(s); });
+    return row;
+  }
+
+  // ---- calendar view ----
+  var calDate = new Date(); calDate.setDate(1);
+  var selectedDay = new Date();
+
+  function occurrencesForMonth(year, monthIndex0){
+    var map = {};
+    subs.forEach(function(s){
+      var day;
+      if (s.cycle === 'yearly'){
+        if ((s.billingMonth||1) - 1 !== monthIndex0) return;
+        day = Math.min(s.billingDay, daysInMonth(year, monthIndex0));
+      } else {
+        day = Math.min(s.billingDay, daysInMonth(year, monthIndex0));
+      }
+      map[day] = map[day] || [];
+      map[day].push(s);
+    });
+    return map;
+  }
+
+  function sameDate(a,b){
+    return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  }
+
+  function renderCalendar(){
+    var today = new Date();
+    var year = calDate.getFullYear(), month = calDate.getMonth();
+    els.calMonthLabel.textContent = year + '년 ' + MONTH_NAMES[month];
+
+    var map = occurrencesForMonth(year, month);
+    var firstWeekday = new Date(year, month, 1).getDay();
+    var total = daysInMonth(year, month);
+
+    els.calGrid.innerHTML = '';
+    for (var i=0; i<firstWeekday; i++){
+      var blank = document.createElement('div');
+      blank.className = 'cal-cell empty';
+      els.calGrid.appendChild(blank);
+    }
+    for (var day=1; day<=total; day++){
+      var cellDate = new Date(year, month, day);
+      var cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cal-cell';
+      if (sameDate(cellDate, today)) cell.classList.add('today');
+      if (sameDate(cellDate, selectedDay)) cell.classList.add('selected');
+
+      var dotsHtml = '';
+      var occ = map[day];
+      if (occ && occ.length){
+        var shown = occ.slice(0,3);
+        dotsHtml = '<span class="cal-dots">' + shown.map(function(s){
+          return '<i style="background:' + s.color + '"></i>';
+        }).join('') + '</span>';
+        if (occ.length > 3){ dotsHtml += '<span class="cal-more">+' + (occ.length-3) + '</span>'; }
+      }
+      cell.innerHTML = '<span class="cal-daynum">' + day + '</span>' + dotsHtml;
+      cell.addEventListener('click', function(d){
+        return function(){ selectedDay = d; renderCalendar(); };
+      }(cellDate));
+      els.calGrid.appendChild(cell);
+    }
+
+    renderCalDetail(map);
+  }
+
+  function renderCalDetail(map){
+    var today = new Date();
+    els.calDetailList.innerHTML = '';
+    if (!selectedDay || selectedDay.getMonth() !== calDate.getMonth() || selectedDay.getFullYear() !== calDate.getFullYear()){
+      els.calDetailLabel.textContent = '';
+      els.calDetailList.innerHTML = '<div class="cal-detail-hint">날짜를 선택하면 그날 결제될 구독을 볼 수 있어요.</div>';
+      return;
+    }
+    var dayOcc = (map[selectedDay.getDate()] || []).slice();
+    var label = MONTH_NAMES[selectedDay.getMonth()] + ' ' + selectedDay.getDate() + '일';
+    els.calDetailLabel.innerHTML = '<span>' + label + '</span><span>' + (dayOcc.length ? dayOcc.length + '건' : '') + '</span>';
+    if (!dayOcc.length){
+      els.calDetailList.innerHTML = '<div class="cal-detail-hint">이 날 결제되는 구독이 없어요.</div>';
+      return;
+    }
+    dayOcc.forEach(function(s){
+      els.calDetailList.appendChild(buildRow(s, today, selectedDay));
+    });
+  }
+
+  els.calPrev.addEventListener('click', function(){
+    calDate.setMonth(calDate.getMonth()-1);
+    renderCalendar();
+  });
+  els.calNext.addEventListener('click', function(){
+    calDate.setMonth(calDate.getMonth()+1);
+    renderCalendar();
+  });
+
+  // ---- card strip: mouse drag-to-slide + active dot tracking ----
+  (function(){
+    var strip = els.cardStrip;
+    var dragging = false, startX = 0, startScroll = 0, moved = false;
+
+    strip.addEventListener('pointerdown', function(e){
+      if (e.pointerType !== 'mouse') return;
+      dragging = true; moved = false;
+      startX = e.clientX;
+      startScroll = strip.scrollLeft;
+      strip.classList.add('dragging');
+      strip.setPointerCapture(e.pointerId);
+    });
+    strip.addEventListener('pointermove', function(e){
+      if (!dragging) return;
+      var dx = e.clientX - startX;
+      if (Math.abs(dx) > 3) moved = true;
+      strip.scrollLeft = startScroll - dx;
+    });
+    function endDrag(){
+      dragging = false;
+      strip.classList.remove('dragging');
+    }
+    strip.addEventListener('pointerup', endDrag);
+    strip.addEventListener('pointercancel', endDrag);
+    strip.addEventListener('click', function(e){
+      if (moved){ e.preventDefault(); e.stopPropagation(); moved = false; }
+    }, true);
+
+    var raf = null;
+    function updateActiveDot(){
+      var chips = strip.children;
+      if (!chips.length || !els.cardDots.children.length) return;
+      var contRect = strip.getBoundingClientRect();
+      var contCenter = contRect.left + contRect.width / 2;
+      var closestIdx = 0, closestDist = Infinity;
+      Array.prototype.forEach.call(chips, function(chip, i){
+        var r = chip.getBoundingClientRect();
+        var dist = Math.abs((r.left + r.width / 2) - contCenter);
+        if (dist < closestDist){ closestDist = dist; closestIdx = i; }
+      });
+      Array.prototype.forEach.call(els.cardDots.children, function(dot, i){
+        dot.classList.toggle('active', i === closestIdx);
+      });
+    }
+    strip.addEventListener('scroll', function(){
+      if (raf) return;
+      raf = requestAnimationFrame(function(){ updateActiveDot(); raf = null; });
+    });
+  })();
+
+  els.viewSwitch.addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('.view-btn') : null;
+    if (!btn) return;
+    var view = btn.getAttribute('data-view');
+    Array.prototype.forEach.call(els.viewSwitch.children, function(b){ b.classList.toggle('active', b===btn); });
+    els.listView.hidden = view !== 'list';
+    els.calendarView.hidden = view !== 'calendar';
+    if (view === 'calendar') renderCalendar();
+  });
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function refreshCardList(){
+    var names = Array.from(new Set(subs.map(function(s){ return s.card; })));
+    els.cardList.innerHTML = '';
+    names.forEach(function(n){
+      var o = document.createElement('option');
+      o.value = n;
+      els.cardList.appendChild(o);
+    });
+  }
+
+  function toggleCycleFields(){
+    els.monthField.hidden = els.fCycle.value !== 'yearly';
+  }
+  els.fCycle.addEventListener('change', toggleCycleFields);
+
+  function openAddSheet(){
+    editingId = null;
+    els.sheetTitle.textContent = '구독 추가';
+    els.subForm.reset();
+    els.fDay.value = '1';
+    els.fMonth.value = '1';
+    toggleCycleFields();
+    selectedColor = CARD_COLORS[subs.length % CARD_COLORS.length];
+    Array.prototype.forEach.call(els.colorRow.children, function(el,i){ el.classList.toggle('selected', CARD_COLORS[i]===selectedColor); });
+    els.btnDelete.hidden = true;
+    els.statusLine.textContent = usingSample ? '예시 데이터를 지우고 실제 구독을 저장합니다.' : '';
+    els.sheetOverlay.hidden = false;
+  }
+
+  function openEditSheet(s){
+    if (usingSample){ openAddSheet(); return; }
+    editingId = s.id;
+    els.sheetTitle.textContent = '구독 수정';
+    els.fName.value = s.name;
+    els.fAmount.value = s.amount;
+    els.fCycle.value = s.cycle;
+    els.fMonth.value = String(s.billingMonth || 1);
+    els.fDay.value = String(s.billingDay);
+    els.fCard.value = s.card;
+    toggleCycleFields();
+    selectedColor = s.color;
+    Array.prototype.forEach.call(els.colorRow.children, function(el,i){ el.classList.toggle('selected', CARD_COLORS[i]===selectedColor); });
+    els.btnDelete.hidden = false;
+    els.statusLine.textContent = '';
+    els.sheetOverlay.hidden = false;
+  }
+
+  function closeSheet(){ els.sheetOverlay.hidden = true; }
+  els.btnCancel.addEventListener('click', closeSheet);
+  els.sheetOverlay.addEventListener('click', function(e){ if (e.target === els.sheetOverlay) closeSheet(); });
+  els.fabAdd.addEventListener('click', openAddSheet);
+
+  els.subForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var data = {
+      name: els.fName.value.trim(),
+      amount: Number(els.fAmount.value) || 0,
+      cycle: els.fCycle.value,
+      billingDay: Number(els.fDay.value),
+      billingMonth: els.fCycle.value === 'yearly' ? Number(els.fMonth.value) : null,
+      card: els.fCard.value.trim(),
+      color: selectedColor
+    };
+    if (!data.name || !data.card || data.amount <= 0){ return; }
+    saveSub(data);
+  });
+
+  els.btnDelete.addEventListener('click', function(){
+    if (editingId) deleteSub(editingId);
+  });
+
+  els.themeToggle.addEventListener('click', function(){
+    var root = document.documentElement;
+    var cur = root.getAttribute('data-theme');
+    if (cur === 'dark'){ root.setAttribute('data-theme','light'); }
+    else if (cur === 'light'){ root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme','dark'); }
+  });
+
+  // ---- persistence ----
+  function localLoad(){
+    try {
+      var raw = localStorage.getItem('subtracker_subs');
+      return raw ? JSON.parse(raw) : [];
+    } catch(e){ return []; }
+  }
+  function localSave(list){
+    try { localStorage.setItem('subtracker_subs', JSON.stringify(list)); } catch(e){}
+  }
+
+  function applySnapshot(list){
+    if (!list.length){
+      usingSample = true;
+      subs = SAMPLE.slice();
+    } else {
+      usingSample = false;
+      subs = list;
+    }
+    refreshCardList();
+    render();
+  }
+
+  function saveSub(data){
+    if (db){
+      var ref = editingId ? db.collection('subscriptions').doc(editingId) : db.collection('subscriptions').doc();
+      var payload = Object.assign({}, data, {updatedAt: Date.now()});
+      var p = editingId ? ref.set(payload) : ref.set(payload);
+      p.then(function(){ closeSheet(); }).catch(function(err){
+        els.statusLine.textContent = '저장 실패: ' + (err && err.message ? err.message : '알 수 없는 오류');
+      });
+    } else {
+      var list = usingSample ? [] : subs.slice();
+      if (editingId){
+        list = list.map(function(s){ return s.id === editingId ? Object.assign({}, s, data) : s; });
+      } else {
+        data.id = 'local_' + Date.now();
+        list.push(data);
+      }
+      localSave(list);
+      applySnapshot(list);
+      closeSheet();
+    }
+  }
+
+  function deleteSub(id){
+    if (db){
+      db.collection('subscriptions').doc(id).delete().then(function(){ closeSheet(); }).catch(function(err){
+        els.statusLine.textContent = '삭제 실패: ' + (err && err.message ? err.message : '알 수 없는 오류');
+      });
+    } else {
+      var list = subs.filter(function(s){ return s.id !== id; });
+      localSave(list);
+      applySnapshot(list);
+      closeSheet();
+    }
+  }
+
+  // ---- init ----
+  applySnapshot(localLoad());
+
+  if (window.claude && typeof window.claude.use === 'function'){
+    window.claude.use('db').then(function(namespace){
+      if (!namespace) return;
+      db = namespace;
+      db.collection('subscriptions').onSnapshot(function(snap){
+        var list = snap.docs.map(function(doc){
+          var d = doc.data() || {};
+          return {
+            id: doc.id, name: d.name, amount: d.amount, cycle: d.cycle,
+            billingDay: d.billingDay, billingMonth: d.billingMonth,
+            card: d.card, color: d.color || colorForCard(d.card || '')
+          };
+        });
+        applySnapshot(list);
+      }, function(err){
+        els.statusLine.textContent = '동기화 오류: ' + (err && err.message ? err.message : '');
+      });
+    }).catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>
