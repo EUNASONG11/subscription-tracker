@@ -551,6 +551,18 @@
     {id:'s4', name:'디스코드 Nitro', amount:99000, cycle:'yearly', billingMonth:3, billingDay:1, card:'국민카드'}
   ].map(function(s){ s.color = colorForCard(s.card); return s; });
 
+  var INITIAL = [
+    {id:'sub_baemin', name:'배달의 민족', amount:1990, cycle:'monthly', billingDay:9, card:'네이버페이(카카오체크카드)'},
+    {id:'sub_mybox', name:'네이버 mybox', amount:12650, cycle:'monthly', billingDay:9, card:'네이버페이(카카오체크카드)'},
+    {id:'sub_ytb_lite', name:'유튜브 프리미엄 라이트', amount:8500, cycle:'monthly', billingDay:11, card:'카카오페이머니'},
+    {id:'sub_naver_membership', name:'네이버 멤버십', amount:4900, cycle:'monthly', billingDay:12, card:'국민카드'},
+    {id:'sub_tving', name:'티빙', amount:15000, cycle:'monthly', billingDay:14, card:'네이버페이(국민카드)'},
+    {id:'sub_bubble', name:'버블', amount:5000, cycle:'monthly', billingDay:15, card:'카카오페이머니'},
+    {id:'sub_kurly', name:'마켓컬리', amount:1900, cycle:'monthly', billingDay:18, card:'네이버페이(국민카드)'},
+    {id:'sub_kakao_drawer', name:'카카오 톡서랍', amount:990, cycle:'monthly', billingDay:26, card:'카카오페이머니'},
+    {id:'sub_kakao_emoji', name:'카카오 이모티콘 플러스', amount:3900, cycle:'monthly', billingDay:27, card:'카카오페이카드'}
+  ].map(function(s){ s.color = colorForCard(s.card); return s; });
+
   function render(){
     var today = new Date();
     var list = subs.slice();
@@ -886,8 +898,9 @@
   function localLoad(){
     try {
       var raw = localStorage.getItem('subtracker_subs');
-      return raw ? JSON.parse(raw) : [];
-    } catch(e){ return []; }
+      if (raw === null){ localSave(INITIAL); return INITIAL.slice(); }
+      return JSON.parse(raw);
+    } catch(e){ return INITIAL.slice(); }
   }
   function localSave(list){
     try { localStorage.setItem('subtracker_subs', JSON.stringify(list)); } catch(e){}
